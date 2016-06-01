@@ -36,7 +36,7 @@ import os
 import sys
 
 from rosdistro import get_cached_distribution, get_index, get_index_url
-from rosdistro.dependency_walker import DependencyWalker
+from rosdistro.dependency_walker import DependencyWalker, SourceDependencyWalker
 from rosdistro.manifest_provider import get_release_tag
 
 
@@ -70,10 +70,10 @@ class CustomLogger(object):
             self.logger.log(logging.DEBUG, line.rstrip())
 
 
-def get_recursive_dependencies(distro, package_names, excludes=None, limit_depth=None):
+def get_recursive_dependencies(distro, package_names, excludes=None, limit_depth=None, source=False):
     excludes = set(excludes or [])
     dependencies = set([])
-    walker = DependencyWalker(distro)
+    walker = SourceDependencyWalker(distro) if source else DependencyWalker(distro)
     # redirect all stderr output to logger
     stderr = sys.stderr
     sys.stderr = CustomLogger()
@@ -89,7 +89,7 @@ def get_recursive_dependencies(distro, package_names, excludes=None, limit_depth
     return dependencies
 
 
-def get_recursive_dependencies_on(distro, package_names, excludes=None, limit=None):
+def get_recursive_dependencies_on(distro, package_names, excludes=None, limit=None, source=False):
     excludes = set(excludes or [])
     limit = set(limit or [])
 
@@ -99,7 +99,7 @@ def get_recursive_dependencies_on(distro, package_names, excludes=None, limit=No
         excludes.update(set(released_names) - limit - set(package_names))
 
     dependencies = set([])
-    walker = DependencyWalker(distro)
+    walker = SourceDependencyWalker(distro) if source else DependencyWalker(distro)
     # redirect all stderr output to logger
     stderr = sys.stderr
     sys.stderr = CustomLogger()
